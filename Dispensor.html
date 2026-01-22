@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<!--
+
+PROGRAM:    Dispensor
+
+PURPOSE:    This a reminder tool for dementia patients. It provides:-
+
+            1. An easy-to-read,contextual time-and-date clock.
+
+            2. A list of daily tasks to be completed; typically medication reminders.
+
+            3. Audio and visual reminders for each task.
+
+            4. An interface for carers to set up and manage tasks and view compliance.
+
+            It is implmented as a single-page web application using ReactJS, and is supplied in
+            a single HTML file for ease of deployment and to avoid the need for a web server. All data
+            is stored locally in the browser (don't clear browser data if you want to keep the tasks).
+
+TO RUN:     Download the file Dispensor.html and open in any modern web browser (eg, Control-O)
+
+AUTHOR:     Mark S. Parker
+            github.com/marksparker
+
+-->
+<head>
+    <title>Dispensor</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+            integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+            crossorigin="anonymous"
+            defer></script>
+
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" defer></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" defer></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // ************************** REACTJS COMPONENTS **************************
+
+        /**************************************************************************
+         * COMPONENT: App                                                         *
+         *                                                                        *
+         * Parent component of the web site                                       *
+         *                                                                        *
+         **************************************************************************/
+        const App = () => {
+            return (
+                <div>
+                    <Navbar />
+                    <Clock />
+                </div>
+            );
+        }
+
+        /**************************************************************************
+         * COMPONENT: Navbar                                                      *
+         *                                                                        *
+         * Implements the top navigation bar                                      *
+         *                                                                        *
+         **************************************************************************/
+        const Navbar = () => {
+            return (
+            <nav id="navbar" className="navbar navbar-expand-md bg-body-tertiary pt-0 pb-0">
+                <div className="container-fluid">
+                <ul className="nav navbar-nav d-flex align-items-center w-100">
+
+                    <li className="nav-item">
+                    <a className="nav-link" href="Carer.html">
+                        Carer mode
+                    </a>
+                    </li>
+
+                    <li className="nav-item ms-auto">
+                    <svg
+                        id="maxarrowsvg"
+                        className="cursor-pointer"
+                        width="24"
+                        height="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        onClick={onFullScreen}
+                    >
+                        <path
+                        d="M10.71,14.71,5.41,20H10a1,1,0,0,1,0,2H4a2,2,0,0,1-1.38-.56l0,0s0,0,0,0A2,2,0,0,1,2,20V14a1,1,0,0,1,2,0v4.59l5.29-5.3a1,1,0,0,1,1.42,1.42ZM21.44,2.62s0,0,0,0l0,0A2,2,0,0,0,20,2H14a1,1,0,0,0,0,2h4.59l-5.3,5.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L20,5.41V10a1,1,0,0,0,2,0V4A2,2,0,0,0,21.44,2.62Z"
+                        fill="#231f20"
+                        />
+                        MAX
+                    </svg>
+                    </li>
+
+                    <li className="nav-item">
+                    <svg
+                        id="minarrowsvg"
+                        className="d-none cursor-pointer"
+                        width="24"
+                        height="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        onClick={onExitFullScreen}
+                    >
+                        <path
+                        d="M19.1429 10H14M14 10V4.85714M14 10L20 4"
+                        stroke="#000000"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        />
+                        <path
+                        d="M4.99996 14H9.99996M9.99996 14V19M9.99996 14L4 20"
+                        stroke="#000000"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        />
+                        MIN
+                    </svg>
+                    </li>
+                </ul>
+                </div>
+            </nav>
+            );
+        }
+
+        /**************************************************************************
+         * COMPONENT: Clock                                                       *
+         *                                                                        *
+         * Displays the first screen date/time clock.                             *
+         *                                                                        *
+         **************************************************************************/
+        const Clock = () => {
+            const [now, setNow] = React.useState(new Date());
+            const tick = () => { setNow(new Date()); }
+
+            React.useEffect(() => {
+                const timerID = setInterval(() => tick(), 1000);
+                return () => clearInterval(timerID);
+            }, []);
+
+            // Do all the formatting, padding etc
+            const minute = ("0" + now.getMinutes()).slice(-2);
+            const hour24 = now.getHours();
+            const phase = getPhaseOfDay(hour24);
+            const amPm = hour24 < 12 ? "A.M." : "P.M.";
+            const dayName = now.toLocaleDateString("default", { weekday: "long"});
+            const day = now.getDate();
+            const month = now.toLocaleString("default", { month: "long" });
+            const year = now.getFullYear();
+
+            // Convert to 12 hr clock
+            const hour12 = hour24 == 0 ? 12 : (hour24 > 12 ? hour24 - 12 : hour24);
+
+            return (
+              <div className="text-center pt-2">
+                <div>
+                  <div style={{ fontSize: "15vw", lineHeight: 1 }}>{dayName}</div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: "6vw" }}>{phase}</span>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: "10vw" }}>{hour12}:{minute} </span>
+                  <span style={{ fontSize: "2.5vw" }}>{amPm}</span>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: "5vw" }}>{day} {month} {year}</div>
+                </div>
+              </div>
+            );
+        }
+
+        // ************************** JAVASCRIPT FUNCTIONS **************************
+
+        /**
+         * Enter full-screen mode
+         *
+         */
+        const onFullScreen = () => {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) {                             // Firefox
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {                          // Chrome, Safari and Opera
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {                              // IE/Edge
+                elem.msRequestFullscreen();
+            }
+            document.getElementById("maxarrowsvg").classList.add("d-none");
+            document.getElementById("minarrowsvg").classList.remove("d-none");
+        }
+
+        /**
+         * Exit full-screen mode
+         *
+         */
+        const onExitFullScreen = () => {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {                          // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {                         // Chrome, Safari and Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {                             // IE, Edge
+                document.msExitFullscreen();
+            }
+            document.getElementById("maxarrowsvg").classList.remove("d-none");
+            document.getElementById("minarrowsvg").classList.add("d-none");
+        }
+
+        /**
+         * Determine the 'phase' of the day based on the 24-hour value
+         *
+         * NIGHT:       21:00 - 00:00
+         * PRE-DAWN:    00:00 - 07:00
+         * MORNING:     07:00 - 12:00
+         * AFTERNOON:   12:00 - 18:00
+         * EVENING:     18:00 - 21:00
+         *
+         * @param {number} hour - Hour of day in 24hr clock
+         *
+         **/
+        function getPhaseOfDay(hour) {
+            switch (hour)
+            {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    return "PRE-DAWN";
+
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                    return "MORNING";
+
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                    return "AFTERNOON";
+
+                case 18:
+                case 19:
+                case 20:
+                    return "EVENING";
+
+                default:
+                    return "NIGHT";
+            }
+        }
+
+        // ****************************** RENDER THE APP ****************************
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+</html>
