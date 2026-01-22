@@ -60,10 +60,10 @@ AUTHOR:     Mark S. Parker
          **************************************************************************/
         const App = () => {
             const [view, setView] = React.useState("clock");                    // start on the clock
-            const [theme, setTheme] = React.useState("dark");                   // default to dark theme
+            const [theme, setTheme] = React.useState(restoreTheme());           // use last set theme or default to dark theme
 
             React.useEffect(() => {
-                document.documentElement.setAttribute("data-bs-theme", theme);
+                applyTheme(theme);
             }, [theme]);
 
            return (
@@ -217,6 +217,28 @@ AUTHOR:     Mark S. Parker
         }
 
         // ************************** JAVASCRIPT FUNCTIONS **************************
+
+        /**
+         * Apply the selected theme to the document and store in local storage
+         *
+         * @param {string} theme - "light" or "dark"
+         */
+        const applyTheme = (theme) => {
+            document.documentElement.setAttribute("data-bs-theme", theme);
+            localStorage.setItem("dispensor.configs.theme", theme);
+        }
+
+        /**
+         * Restore the saved theme from local storage
+         * or set to default if none saved.
+         *
+         */
+        const restoreTheme = () => {
+            let savedTheme = localStorage.getItem("dispensor.configs.theme");
+            if (!["light", "dark"].includes(savedTheme))
+                savedTheme = "dark";
+            return savedTheme;
+        }
 
         /**
          * Enter full-screen mode
