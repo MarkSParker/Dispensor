@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <!--
 
 PROGRAM:    Dispensor
@@ -59,14 +59,19 @@ AUTHOR:     Mark S. Parker
          *                                                                        *
          **************************************************************************/
         const App = () => {
-          const [view, setView] = React.useState("clock");                      // start on the clock
+            const [view, setView] = React.useState("clock");                    // start on the clock
+            const [theme, setTheme] = React.useState("dark");                   // default to dark theme
 
-          return (
-            <div>
-              <Navbar onNavigate={setView} />
-                  {view === "clock" && <Clock />}
-                  {view === "carer" && <Carer />}
-            </div>
+            React.useEffect(() => {
+                document.documentElement.setAttribute("data-bs-theme", theme);
+            }, [theme]);
+
+           return (
+                <div>
+                <Navbar onNavigate={setView} />
+                    {view === "clock" && <Clock />}
+                    {view === "carer" && <Carer onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}/>}
+                </div>
           );
         };
 
@@ -76,7 +81,7 @@ AUTHOR:     Mark S. Parker
          * Implements the top navigation bar                                      *
          *                                                                        *
          **************************************************************************/
-        const Navbar = ({ onNavigate }) => {  
+        const Navbar = ({ onNavigate }) => {
             return (
             <nav id="navbar" className="navbar navbar-expand-md bg-body-tertiary pt-0 pb-0">
                 <div className="container-fluid">
@@ -199,11 +204,14 @@ AUTHOR:     Mark S. Parker
          * Displays the carer interface.                                          *
          *                                                                        *
          **************************************************************************/
-        const Carer = () => {
+        const Carer = ({ onToggleTheme }) => {
             return (
                 <div className="text-center pt-2">
                     <h2>Carer Mode</h2>
                     <p>This is where the carer interface will go.</p>
+                    <button className="btn btn-primary" onClick={onToggleTheme}>
+                        Toggle Theme
+                    </button>
                 </div>
             );
         }
@@ -301,4 +309,4 @@ AUTHOR:     Mark S. Parker
         root.render(<App />);
     </script>
 </body>
-</html>
+</htmldata-bs-theme="light">
