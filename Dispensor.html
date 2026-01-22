@@ -59,13 +59,16 @@ AUTHOR:     Mark S. Parker
          *                                                                        *
          **************************************************************************/
         const App = () => {
-            return (
-                <div>
-                    <Navbar />
-                    <Clock />
-                </div>
-            );
-        }
+          const [view, setView] = React.useState("clock");                      // start on the clock
+
+          return (
+            <div>
+              <Navbar onNavigate={setView} />
+                  {view === "clock" && <Clock />}
+                  {view === "carer" && <Carer />}
+            </div>
+          );
+        };
 
         /**************************************************************************
          * COMPONENT: Navbar                                                      *
@@ -73,15 +76,21 @@ AUTHOR:     Mark S. Parker
          * Implements the top navigation bar                                      *
          *                                                                        *
          **************************************************************************/
-        const Navbar = () => {
+        const Navbar = ({ onNavigate }) => {  
             return (
             <nav id="navbar" className="navbar navbar-expand-md bg-body-tertiary pt-0 pb-0">
                 <div className="container-fluid">
                 <ul className="nav navbar-nav d-flex align-items-center w-100">
 
                     <li className="nav-item">
-                    <a className="nav-link" href="Carer.html">
-                        Carer mode
+                    <a className="nav-link" onClick={() => onNavigate("clock")} >
+                        Clock
+                    </a>
+                    </li>
+
+                    <li className="nav-item">
+                    <a className="nav-link" onClick={() => onNavigate("carer")} >
+                        Carer
                     </a>
                     </li>
 
@@ -145,7 +154,7 @@ AUTHOR:     Mark S. Parker
             const tick = () => { setNow(new Date()); }
 
             React.useEffect(() => {
-                const timerID = setInterval(() => tick(), 1000);
+                const timerID = setInterval(() => tick(), 500);
                 return () => clearInterval(timerID);
             }, []);
 
@@ -181,6 +190,21 @@ AUTHOR:     Mark S. Parker
                   <div style={{ fontSize: "5vw" }}>{day} {month} {year}</div>
                 </div>
               </div>
+            );
+        }
+
+        /**************************************************************************
+         * COMPONENT: Carer                                                       *
+         *                                                                        *
+         * Displays the carer interface.                                          *
+         *                                                                        *
+         **************************************************************************/
+        const Carer = () => {
+            return (
+                <div className="text-center pt-2">
+                    <h2>Carer Mode</h2>
+                    <p>This is where the carer interface will go.</p>
+                </div>
             );
         }
 
