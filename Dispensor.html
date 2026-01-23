@@ -52,6 +52,8 @@ AUTHOR:     Mark S. Parker
     <script type="text/babel">
         // ************************** REACTJS COMPONENTS **************************
 
+        const ViewContext = React.createContext();                              // controls which view is displayed
+
         /**************************************************************************
          * COMPONENT: App                                                         *
          *                                                                        *
@@ -68,9 +70,12 @@ AUTHOR:     Mark S. Parker
 
            return (
                 <div>
-                <Navbar onNavigate={setView} />
-                    {view === "clock" && <Clock />}
-                    {view === "carer" && <Carer onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}/>}
+                <ViewContext.Provider value={{ view, setView }}>
+                    <Navbar />
+                    {view === "clock"   && <Clock />}
+                    {view === "carer"   && <Carer onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")} />}
+                    {view === "addtask" && <AddTask />}
+                </ViewContext.Provider>
                 </div>
           );
         };
@@ -81,20 +86,22 @@ AUTHOR:     Mark S. Parker
          * Implements the top navigation bar                                      *
          *                                                                        *
          **************************************************************************/
-        const Navbar = ({ onNavigate }) => {
+        const Navbar = () => {
+            const { view, setView } = React.useContext(ViewContext);
+
             return (
             <nav id="navbar" className="navbar navbar-expand-md bg-body-tertiary pt-0 pb-0">
                 <div className="container-fluid">
                 <ul className="nav navbar-nav d-flex align-items-center w-100">
 
                     <li className="nav-item">
-                    <a className="nav-link" onClick={() => onNavigate("clock")} >
+                    <a className="nav-link" onClick={() => setView("clock")} >
                         Clock
                     </a>
                     </li>
 
                     <li className="nav-item">
-                    <a className="nav-link" onClick={() => onNavigate("carer")} >
+                    <a className="nav-link" onClick={() => setView("carer")} >
                         Carer
                     </a>
                     </li>
@@ -205,12 +212,42 @@ AUTHOR:     Mark S. Parker
          *                                                                        *
          **************************************************************************/
         const Carer = ({ onToggleTheme }) => {
+            const { view, setView } = React.useContext(ViewContext);
+
             return (
                 <div className="text-center pt-2">
                     <h2>Carer Mode</h2>
                     <p>This is where the carer interface will go.</p>
-                    <button className="btn btn-primary" onClick={onToggleTheme}>
+                    <button className="btn btn-primary" onClick={() => onToggleTheme()}>
                         Toggle Theme
+                    </button>
+                    <button className="btn btn-primary" onClick={() => setView("addtask")}>
+                        Add Task
+                    </button>
+                </div>
+            );
+        }
+
+        /**************************************************************************
+         * COMPONENT: AddTask                                                     *
+         *                                                                        *
+         * Add a new task                                                         *
+         *                                                                        *
+         **************************************************************************/
+        const AddTask = () => {
+            const { view, setView } = React.useContext(ViewContext);
+
+            // TODO: Implement the add task form
+
+            return (
+                <div className="text-center pt-2">
+                    <h2>Add Task</h2>
+                    <p>Here we add a new task.</p>
+                    <br />
+                    <br />
+                    <br />
+                    <button className="btn btn-primary" onClick={() => setView("carer")}>
+                        Done
                     </button>
                 </div>
             );
@@ -331,4 +368,4 @@ AUTHOR:     Mark S. Parker
         root.render(<App />);
     </script>
 </body>
-</htmldata-bs-theme="light">
+</html>
