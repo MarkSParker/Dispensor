@@ -238,20 +238,96 @@ AUTHOR:     Mark S. Parker
             const { view, setView } = React.useContext(ViewContext);
 
             // TODO: Implement the add task form
+            const daysOfWeek = [
+                "Mondays",
+                "Tuesdays",
+                "Wednesdays",
+                "Thursdays",
+                "Fridays",
+                "Saturdays",
+                "Sundays",
+            ];
 
             return (
                 <div className="text-center pt-2">
-                    <h2>Add Task</h2>
-                    <p>Here we add a new task.</p>
-                    <br />
-                    <br />
-                    <br />
-                    <button className="btn btn-primary" onClick={() => setView("carer")}>
-                        Done
-                    </button>
+                    <div className="scheduler">
+                        <h2>New Task</h2>
+
+                        <label htmlFor="newtask">Instructions:</label>
+                        <br />
+                        <textarea
+                            id="newtask"
+                            placeholder="Enter instructions here..."
+                            rows="5"
+                            cols="80"
+                        />
+                        <br />
+
+                        <div className="container mt-3">
+                            <h2>
+                                Which day(s) of the week should the task be performed?
+                            </h2>
+
+                            <form>
+                                <div className="form-check">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        id="everyday"
+                                        name="everyday"
+                                        value="everyday"
+                                        onClick={() => {
+                                            daysOfWeek.forEach((day) => {
+                                                document.getElementById(day).checked =
+                                                    document.getElementById("everyday").checked;
+                                            });
+                                        }}
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="everyday"
+                                    >
+                                        Everyday
+                                    </label>
+                                </div>
+
+                                {daysOfWeek.map((day) => (
+                                    <div className="form-check" key={day}>
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            id={day}
+                                            name={day}
+                                            value={day}
+                                        />
+                                        <label
+                                            className="form-check-label"
+                                            htmlFor={day}
+                                        >
+                                            {day}
+                                        </label>
+                                    </div>
+                                ))}
+                            </form>
+
+                            <div className="container m-5">
+                                <button
+                                    type="button"
+                                    className="btn btn-primary me-2"
+                                    onClick={() => setView("carer")}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button type="button" className="btn btn-primary">
+                                    Save task
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
-        }
+        };
 
         // ************************** JAVASCRIPT FUNCTIONS **************************
 
