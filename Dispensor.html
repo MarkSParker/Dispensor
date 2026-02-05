@@ -53,6 +53,7 @@ AUTHOR:     Mark S. Parker
         // ************************** REACTJS COMPONENTS **************************
 
         const ViewContext = React.createContext();                              // controls which view is displayed
+        const themes = ["dark", "light"];                                       // supported themes
 
         /**************************************************************************
          * COMPONENT: App                                                         *
@@ -249,82 +250,83 @@ AUTHOR:     Mark S. Parker
             ];
 
             return (
-                <div className="text-center pt-2">
-                    <div className="scheduler">
-                        <h2>New Task</h2>
+                <div className="container my-5">
 
-                        <label htmlFor="newtask">Instructions:</label>
-                        <br />
-                        <textarea
-                            id="newtask"
-                            placeholder="Enter instructions here..."
-                            rows="5"
-                            cols="80"
-                        />
-                        <br />
+                  <div className="row justify-content-center">
+                  <div className="col-4">
+                  <h2>New Task</h2>
+                  </div>
+                  </div>
 
-                        <div className="container mt-3">
-                            <h2>
-                                Which day(s) of the week should the task be performed?
-                            </h2>
+                  <div className="row">
+                  <label htmlFor="newtask">Instructions:</label>
+                  </div>
 
-                            <form>
-                                <div className="form-check">
-                                    <input
-                                        type="checkbox"
-                                        className="form-check-input"
-                                        id="everyday"
-                                        name="everyday"
-                                        value="everyday"
-                                        onClick={() => {
-                                            daysOfWeek.forEach((day) => {
-                                                document.getElementById(day).checked =
-                                                    document.getElementById("everyday").checked;
-                                            });
-                                        }}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="everyday"
-                                    >
-                                        Everyday
-                                    </label>
-                                </div>
+                  <div className="row">
+                  <textarea
+                    id="newtask"
+                    placeholder="Enter instructions here..."
+                    rows="5"
+                    cols="80" />
+                  </div>
 
-                                {daysOfWeek.map((day) => (
-                                    <div className="form-check" key={day}>
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            id={day}
-                                            name={day}
-                                            value={day}
-                                        />
-                                        <label
-                                            className="form-check-label"
-                                            htmlFor={day}
-                                        >
-                                            {day}
-                                        </label>
-                                    </div>
-                                ))}
-                            </form>
+                  <div className="row justify-content-center">
+                  <div className="col-6">
+                  <h2>Which day(s) of the week should the task be performed?</h2>
+                  </div>
+                  </div>
 
-                            <div className="container m-5">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary me-2"
-                                    onClick={() => setView("carer")}
-                                >
-                                    Cancel
-                                </button>
-
-                                <button type="button" className="btn btn-primary">
-                                    Save task
-                                </button>
-                            </div>
-                        </div>
+                  <form>
+                    <div className="row">
+                    <div>
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="everyday"
+                      name="everyday"
+                      value="everyday"
+                      onClick={() => {
+                        daysOfWeek.forEach((day) => {
+                          document.getElementById(day).checked =
+                            document.getElementById("everyday").checked;
+                        });
+                      }}
+                    />
+                    <label className="form-check-label" htmlFor="everyday">
+                      Everyday
+                    </label>
                     </div>
+                    </div>
+
+                    <div className="row">
+                    {daysOfWeek.map((day) => (
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          id={day}
+                          name={day}
+                          value={day}
+                        />
+                        <label className="form-check-label" htmlFor={day}>
+                          {day}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  </form>
+
+                  <button
+                    type="button"
+                    className="btn btn-primary me-2"
+                    onClick={() => setView("carer")}
+                  >
+                    Cancel
+                  </button>
+
+                  <button type="button" className="btn btn-primary">
+                    Save task
+                  </button>
                 </div>
             );
         };
@@ -348,8 +350,8 @@ AUTHOR:     Mark S. Parker
          */
         const restoreTheme = () => {
             let savedTheme = localStorage.getItem("dispensor.configs.theme");
-            if (!["light", "dark"].includes(savedTheme))
-                savedTheme = "dark";
+            if (!themes.includes(savedTheme))
+                savedTheme = themes[0];
             return savedTheme;
         }
 
