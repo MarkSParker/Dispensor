@@ -54,6 +54,9 @@ AUTHOR:     Mark S. Parker
 
         const ViewContext = React.createContext();                              // controls which view is displayed
         const themes = ["dark", "light"];                                       // supported themes
+        const DaysOfWeek = ["Everyday", "Mondays", "Tuesdays", "Wednesdays",    // days of week or every day of week
+            "Thursdays", "Fridays", "Saturdays", "Sundays"];
+
 
         /**************************************************************************
          * COMPONENT: App                                                         *
@@ -69,13 +72,13 @@ AUTHOR:     Mark S. Parker
                 applyTheme(theme);
             }, [theme]);
 
-           return (
+            return (
                 <div>
                 <ViewContext.Provider value={{ view, setView }}>
                     <Navbar />
                     {view === "clock"   && <Clock />}
                     {view === "carer"   && <Carer onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")} />}
-                    {view === "addtask" && <AddTask />}
+                    {view === "newtask" && <NewTask />}
                 </ViewContext.Provider>
                 </div>
           );
@@ -222,7 +225,7 @@ AUTHOR:     Mark S. Parker
                     <button className="btn btn-primary" onClick={() => onToggleTheme()}>
                         Toggle Theme
                     </button>
-                    <button className="btn btn-primary" onClick={() => setView("addtask")}>
+                    <button className="btn btn-primary" onClick={() => setView("newtask")}>
                         Add Task
                     </button>
                 </div>
@@ -230,24 +233,129 @@ AUTHOR:     Mark S. Parker
         }
 
         /**************************************************************************
-         * COMPONENT: AddTask                                                     *
+         * COMPONENT: Checkbox                                                    *
+         *                                                                        *
+         * Check box type input                                                   *
+         *                                                                        *
+         **************************************************************************/
+        const Checkbox = ({ id, label, className = "", ...props }) => {
+            return (
+                <div className={`form-check mb-2 ${className}`}>
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id={id}
+                        {...props}
+                    />
+                    <label className="form-check-label" htmlFor={id}>
+                        {label}
+                    </label>
+                </div>
+            );
+        };
+
+        /**************************************************************************
+         * COMPONENT: CheckboxGroup                                               *
+         *                                                                        *
+         * Formatted group of check boxes and labels                              *
+         *                                                                        *
+         **************************************************************************/
+        const CheckboxGroup = ({ items, values, onChange }) => {
+          return (
+            <div>
+              {items.map((item) => (
+                <Checkbox
+                  key={item}
+                  id={item}
+                  label={item}
+                  checked={values.includes(item)}
+                  onChange={() => onChange(item)}
+                />
+              ))}
+            </div>
+          );
+        };
+
+        /**************************************************************************
+         * COMPONENT: PrimaryButton                                               *
+         *                                                                        *
+         * Front-end prmary buttons                                               *
+         *                                                                        *
+         **************************************************************************/
+        const PrimaryButton = ({ children, className = "", ...props }) => {
+          return (
+            <button
+              type="button"
+              className={`btn btn-primary ${className}`}
+              {...props}
+            >
+              {children}
+            </button>
+          );
+        };
+
+        /**************************************************************************
+         * COMPONENT: FormRow                                                     *
+         *                                                                        *
+         * Container for a form row                                               *
+         *                                                                        *
+         **************************************************************************/
+        const FormRow = ({ children }) => {
+            return <div className="mb-3">{children}</div>;
+        };
+
+        /**************************************************************************
+         * COMPONENT: TextArea                                                    *
+         *                                                                        *
+         * Container for forms rows                                               *
+         *                                                                        *
+         **************************************************************************/
+        const TextArea = ({ id, label, ...props }) => {
+            return (
+                <FormRow>
+                    <label htmlFor={id} className="form-label">{label}</label>
+                    <textarea id={id} className="form-control" {...props} />
+                </FormRow>
+            );
+        };
+
+        /**************************************************************************
+         * COMPONENT: DayOfWeekSelector                                           *
+         *                                                                        *
+         * Selects a day of week, or all days in the week                         *
+         *                                                                        *
+         **************************************************************************/
+        const DayOfWeekSelector = () => {
+
+            // Select every day
+            function handleClick(checkboxId) {
+                if (checkboxId == "Everyday") {
+                    const checked = document.getElementById(checkboxId).checked;
+                    DaysOfWeek.forEach((day) => document.getElementById(day).checked = checked);
+                }
+            }
+
+            return (
+                <form>
+                    <div className="row">
+                        {DaysOfWeek.map((day) => (
+                            <div key={day}>
+                                <Checkbox id={day} label={day} key={day} onClick={() => handleClick(day)} />
+                            </div>
+                        ))}
+                    </div>
+                </form>
+            )
+        };
+
+        /**************************************************************************
+         * COMPONENT: NewTask                                                     *
          *                                                                        *
          * Add a new task                                                         *
          *                                                                        *
          **************************************************************************/
-        const AddTask = () => {
+        const NewTask = () => {
             const { view, setView } = React.useContext(ViewContext);
-
-            // TODO: Implement the add task form
-            const daysOfWeek = [
-                "Mondays",
-                "Tuesdays",
-                "Wednesdays",
-                "Thursdays",
-                "Fridays",
-                "Saturdays",
-                "Sundays",
-            ];
 
             return (
                 <div className="container my-5">
@@ -276,60 +384,22 @@ AUTHOR:     Mark S. Parker
                   </div>
                   </div>
 
-                  <form>
-                    <div className="row">
-                    <div>
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="everyday"
-                      name="everyday"
-                      value="everyday"
-                      onClick={() => {
-                        daysOfWeek.forEach((day) => {
-                          document.getElementById(day).checked =
-                            document.getElementById("everyday").checked;
-                        });
-                      }}
-                    />
-                    <label className="form-check-label" htmlFor="everyday">
-                      Everyday
-                    </label>
-                    </div>
-                    </div>
+                  <DayOfWeekSelector />
 
-                    <div className="row">
-                    {daysOfWeek.map((day) => (
-                      <div>
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id={day}
-                          name={day}
-                          value={day}
-                        />
-                        <label className="form-check-label" htmlFor={day}>
-                          {day}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  </form>
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
 
-                  <button
-                    type="button"
-                    className="btn btn-primary me-2"
-                    onClick={() => setView("carer")}
-                  >
-                    Cancel
-                  </button>
+                  <PrimaryButton onClick={() => setView("carer")}> Cancel </PrimaryButton>
+                  <PrimaryButton> Save Task </PrimaryButton>
 
-                  <button type="button" className="btn btn-primary">
-                    Save task
-                  </button>
                 </div>
             );
         };
+
+
 
         // ************************** JAVASCRIPT FUNCTIONS **************************
 
