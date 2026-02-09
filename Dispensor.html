@@ -349,6 +349,35 @@ AUTHOR:     Mark S. Parker
         };
 
         /**************************************************************************
+         * COMPONENT: TimeOfDaySelector                                           *
+         *                                                                        *
+         * Selects a time of day with 15 minute granularity                       *
+         *                                                                        *
+         **************************************************************************/
+        const TimeOfDaySelector = () => {
+
+            var options = [];
+            for (let hour = 0; hour <= 23; hour++) {
+                for (let minute = 0; minute <= 45; minute += 15) {
+                    let hour_str = String(hour).padStart(2, '0');
+                    let minute_str = String(minute).padStart(2, '0');
+                    options.push({
+                        value: `${hour_str}${minute_str}`,
+                        label: `${hour_str}:${minute_str}`
+                    });
+                }
+            }
+
+            return (
+                <select id="TimeOfDay">
+                    {options.map((o) => (
+                        <option value={o.value} key={o.value}>{o.label}</option>
+                    ))}
+                </select>
+            )
+        };
+
+        /**************************************************************************
          * COMPONENT: NewTask                                                     *
          *                                                                        *
          * Add a new task                                                         *
@@ -385,6 +414,9 @@ AUTHOR:     Mark S. Parker
                   </div>
 
                   <DayOfWeekSelector />
+
+                  <TimeOfDaySelector />
+
 
                   <br />
                   <br />
