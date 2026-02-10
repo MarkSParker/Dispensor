@@ -222,12 +222,14 @@ AUTHOR:     Mark S. Parker
                 <div className="text-center pt-2">
                     <h2>Carer Mode</h2>
                     <p>This is where the carer interface will go.</p>
-                    <button className="btn btn-primary" onClick={() => onToggleTheme()}>
+                    
+                    <PrimaryButton onClick={() => onToggleTheme()}>
                         Toggle Theme
-                    </button>
-                    <button className="btn btn-primary" onClick={() => setView("newtask")}>
+                    </PrimaryButton>
+                    
+                    <PrimaryButton onClick={() => setView("newtask")}>
                         Add Task
-                    </button>
+                    </PrimaryButton>
                 </div>
             );
         }
@@ -286,7 +288,7 @@ AUTHOR:     Mark S. Parker
           return (
             <button
               type="button"
-              className={`btn btn-primary ${className}`}
+              className={`btn btn-primary m-2 ${className}`}
               {...props}
             >
               {children}
@@ -351,14 +353,23 @@ AUTHOR:     Mark S. Parker
         /**************************************************************************
          * COMPONENT: TimeOfDaySelector                                           *
          *                                                                        *
-         * Selects a time of day with 15 minute granularity                       *
+         * Selects a time of day with 15 minute granularity. To avoid ambiguity   *
+         * midnight is not allowed.                                               *
          *                                                                        *
          **************************************************************************/
         const TimeOfDaySelector = () => {
 
+            // TODO: Only offer time slots where there isn't already a task
+
             var options = [];
             for (let hour = 0; hour <= 23; hour++) {
                 for (let minute = 0; minute <= 45; minute += 15) {
+                    
+                    // midnight not allowed
+                    if (hour === 0 && minute === 0)
+                        continue;
+
+                    // Add an option
                     let hour_str = String(hour).padStart(2, '0');
                     let minute_str = String(minute).padStart(2, '0');
                     options.push({
