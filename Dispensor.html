@@ -56,6 +56,7 @@ AUTHOR:     Mark S. Parker
         const themes = ["dark", "light"];                                       // supported themes
         const DaysOfWeek = ["Everyday", "Mondays", "Tuesdays", "Wednesdays",    // days of week or every day of week
             "Thursdays", "Fridays", "Saturdays", "Sundays"];
+        const NotSet = "Not set";                                               // item is not set
 
 
         /**************************************************************************
@@ -222,11 +223,11 @@ AUTHOR:     Mark S. Parker
                 <div className="text-center pt-2">
                     <h2>Carer Mode</h2>
                     <p>This is where the carer interface will go.</p>
-                    
+
                     <PrimaryButton onClick={() => onToggleTheme()}>
                         Toggle Theme
                     </PrimaryButton>
-                    
+
                     <PrimaryButton onClick={() => setView("newtask")}>
                         Add Task
                     </PrimaryButton>
@@ -322,19 +323,35 @@ AUTHOR:     Mark S. Parker
         };
 
         /**************************************************************************
-         * COMPONENT: DayOfWeekSelector                                           *
+         * COMPONENT: DaysOfWeekSelector                                          *
          *                                                                        *
          * Selects a day of week, or all days in the week                         *
          *                                                                        *
          **************************************************************************/
-        const DayOfWeekSelector = () => {
+        const DaysOfWeekSelector = ({ id, onChange }) => {
 
-            // Select every day
+            // Handle an option being clicked
             function handleClick(checkboxId) {
-                if (checkboxId == "Everyday") {
-                    const checked = document.getElementById(checkboxId).checked;
-                    DaysOfWeek.forEach((day) => document.getElementById(day).checked = checked);
+                // Special handling:
+                // =================
+                //
+                // 1. If "everyday" is checked then check all the other days
+                // 2. If "everyday" is unchecked then clear all the other days
+                // 3. If any other day is unchecked, then uncheck everyday
+                //
+                const everydayId = (id + "Everyday");
+                const thisChecked = document.getElementById(checkboxId).checked;
+
+                if (checkboxId === everydayId) {
+                    DaysOfWeek.forEach((day) => document.getElementById(id + day).checked = thisChecked);
                 }
+                else {
+                    if (!thisChecked)
+                        document.getElementById(everydayId).checked = false;
+                }
+
+                // Call the parent's change handler as well
+                onChange();
             }
 
             return (
@@ -342,7 +359,7 @@ AUTHOR:     Mark S. Parker
                     <div className="row">
                         {DaysOfWeek.map((day) => (
                             <div key={day}>
-                                <Checkbox id={day} label={day} key={day} onClick={() => handleClick(day)} />
+                                <Checkbox id={id+day} label={day} key={day} onClick={() => handleClick(id+day)} />
                             </div>
                         ))}
                     </div>
@@ -357,14 +374,14 @@ AUTHOR:     Mark S. Parker
          * midnight is not allowed.                                               *
          *                                                                        *
          **************************************************************************/
-        const TimeOfDaySelector = () => {
+        const TimeOfDaySelector = ({ id, onChange }) => {
 
             // TODO: Only offer time slots where there isn't already a task
 
-            var options = [];
+            var options = [{ value: NotSet, label: NotSet }]
             for (let hour = 0; hour <= 23; hour++) {
                 for (let minute = 0; minute <= 45; minute += 15) {
-                    
+
                     // midnight not allowed
                     if (hour === 0 && minute === 0)
                         continue;
@@ -380,7 +397,7 @@ AUTHOR:     Mark S. Parker
             }
 
             return (
-                <select id="TimeOfDay">
+                <select id={id} onChange={onChange}>
                     {options.map((o) => (
                         <option value={o.value} key={o.value}>{o.label}</option>
                     ))}
@@ -397,47 +414,93 @@ AUTHOR:     Mark S. Parker
         const NewTask = () => {
             const { view, setView } = React.useContext(ViewContext);
 
+            // ID's of changeable elements on page
+            const IdInstructions   = "IdInstructions";
+            const IdDaysOfWeek     = "IdDaysOfWeek";
+            const IdTimeOfDay      = "IdTimeOfDay";
+            const IdSaveTaskButton = "IdSaveTaskButton";
+            const IdCancelButton   = "IdCancelButton;"
+
+            // Handler: Enable the save button if all fields are completed
+            function handleNewTaskChange() {
+                let disableSaveTask = false;
+
+                // Check instructions are set
+                if (document.getElementById(IdInstructions).value === "")
+                    disableSaveTask = true;
+
+                // Check at least one day of week is selected
+                let selectedCount = 0;
+                DaysOfWeek.forEach((day) => {
+                    if (document.getElementById(IdDaysOfWeek + day).checked)
+                        selectedCount++;
+                    })
+                if (selectedCount === 0)
+                    disableSaveTask = true;
+
+                // Check a time is selected
+                if (document.getElementById(IdTimeOfDay).value === NotSet)
+                    disableSaveTask = true;
+
+                // Enable the save button
+                document.getElementById(IdSaveTaskButton).disabled = disableSaveTask;
+
+            }
+
             return (
                 <div className="container my-5">
+	                <div className="row justify-content-center">
+		                <div className="col-4">
+			                <h2>New Task</h2>
+		                </div>
+	                </div>
 
-                  <div className="row justify-content-center">
-                  <div className="col-4">
-                  <h2>New Task</h2>
-                  </div>
-                  </div>
+	                <div className="row">
+		                <label htmlFor="newtask">Instructions:</label>
+	                </div>
 
-                  <div className="row">
-                  <label htmlFor="newtask">Instructions:</label>
-                  </div>
+	                <div className="row">
+		                <textarea
+			                id={IdInstructions}
+			                placeholder="Enter instructions here..."
+			                rows="5"
+			                cols="80"
+			                onChange={() => handleNewTaskChange()}
+		                />
+	                </div>
 
-                  <div className="row">
-                  <textarea
-                    id="newtask"
-                    placeholder="Enter instructions here..."
-                    rows="5"
-                    cols="80" />
-                  </div>
+	                <div className="row justify-content-center">
+		                <div className="col-6">
+			                <h3 className="my-4">
+				                Which day(s) of the week should the task be performed?
+			                </h3>
+			                <DaysOfWeekSelector
+				                id={IdDaysOfWeek}
+				                onChange={() => handleNewTaskChange()}
+				                className="m-2"
+			                />
+		                </div>
 
-                  <div className="row justify-content-center">
-                  <div className="col-6">
-                  <h2>Which day(s) of the week should the task be performed?</h2>
-                  </div>
-                  </div>
+		                <div className="col-6">
+			                <h3 className="my-4">
+				                What time of day should the task be performed?
+			                </h3>
+			                <TimeOfDaySelector
+				                id={IdTimeOfDay}
+				                onChange={() => handleNewTaskChange()}
+				                className="m-2"
+			                />
+			                <p className="mt-4">
+				                Note that to avoid confusion as to which day they were done
+				                tasks cannot be set for midnight. Tasks can ony be set on the
+				                quarter hours and multiple tasks cannot be set for the exact
+				                same time (instead edit the existing task in that time slot.)
+			                </p>
+		                </div>
+	                </div>
 
-                  <DayOfWeekSelector />
-
-                  <TimeOfDaySelector />
-
-
-                  <br />
-                  <br />
-                  <br />
-                  <br />
-                  <br />
-
-                  <PrimaryButton onClick={() => setView("carer")}> Cancel </PrimaryButton>
-                  <PrimaryButton> Save Task </PrimaryButton>
-
+	                <PrimaryButton onClick={() => setView("carer")}> Cancel </PrimaryButton>
+	                <PrimaryButton id={IdSaveTaskButton} disabled> Save Task </PrimaryButton>
                 </div>
             );
         };
