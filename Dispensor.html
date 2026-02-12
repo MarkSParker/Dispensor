@@ -243,11 +243,22 @@ AUTHOR:     Mark S. Parker
          **************************************************************************/
         const Carer = ({ onToggleTheme }) => {
             const { view, setView } = React.useContext(ViewContext);
+            const tasks = restoreTasks();
+
+            console.log("List of tasks: ", tasks);
 
             return (
                 <div className="text-center pt-2">
-                    <h2>Carer Mode</h2>
-                    <p>This is where the carer interface will go.</p>
+                    <h2>List of Tasks</h2>
+
+                    {tasks.map((t) => (
+                        <div key={t.id}>
+                        <p>Id:           {t.id}</p>
+                        <p>Instructions: {t.instructions}</p>
+                        <p>On days:      {t.selectedDays}</p>
+                        <p>At time:      {t.timeOfDay}</p>
+                        </div>
+                        ))}
 
                     <PrimaryButton onClick={() => onToggleTheme()}>
                         Toggle Theme
