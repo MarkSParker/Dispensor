@@ -44,6 +44,27 @@ AUTHOR:     Mark S. Parker
 
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
+
+    <!-- CSS -->
+    <style>
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            font-size: 1.5rem;
+            padding: 20px 30px;
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .popup.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -53,11 +74,11 @@ AUTHOR:     Mark S. Parker
         // ************************** REACTJS COMPONENTS **************************
 
         const ViewContext = React.createContext();                              // controls which view is displayed
+        const PopupContext = React.createContext();                             // lets the popup be used anywhere
         const themes = ["dark", "light"];                                       // supported themes
         const DaysOfWeek = ["Everyday", "Mondays", "Tuesdays", "Wednesdays",    // days of week or every day of week
             "Thursdays", "Fridays", "Saturdays", "Sundays"];
         const NotSet = "Not set";                                               // item is not set
-
 
         /**************************************************************************
          * COMPONENT: App                                                         *
@@ -68,6 +89,7 @@ AUTHOR:     Mark S. Parker
         const App = () => {
             const [view, setView] = React.useState("clock");                    // start on the clock
             const [theme, setTheme] = React.useState(restoreTheme());           // use last set theme or default to dark theme
+            const [popup, setPopup] = React.useState("");                       // a fading popup message
 
             React.useEffect(() => {
                 applyTheme(theme);
@@ -76,10 +98,13 @@ AUTHOR:     Mark S. Parker
             return (
                 <div>
                 <ViewContext.Provider value={{ view, setView }}>
+                <PopupContext.Provider value={{ popup, setPopup }}>
                     <Navbar />
+                    <Popup>{popup}</Popup>
                     {view === "clock"   && <Clock />}
                     {view === "carer"   && <Carer onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")} />}
                     {view === "newtask" && <NewTask />}
+                </PopupContext.Provider>
                 </ViewContext.Provider>
                 </div>
           );
@@ -231,6 +256,31 @@ AUTHOR:     Mark S. Parker
                     <PrimaryButton onClick={() => setView("newtask")}>
                         Add Task
                     </PrimaryButton>
+                </div>
+            );
+        }
+
+        /**************************************************************************
+         * COMPONENT: Popup                                                       *
+         *                                                                        *
+         * Puts up a message box in the middle of the page and fades it out       *
+         * after 2 secs.                                                          *
+         *                                                                        *
+         **************************************************************************/
+        const Popup = () => {
+            const { popup, setPopup } = React.useContext(PopupContext);
+
+            let show = popup ? "show" : "noshow";
+
+            React.useEffect(() => {
+                if (!popup)
+                    return;
+                setTimeout(() => { setPopup(""); }, 3000);                      // fade out
+            }, [popup]);
+
+            return (
+                <div className={`popup ${show}`}>
+                    {popup}
                 </div>
             );
         }
@@ -421,6 +471,7 @@ AUTHOR:     Mark S. Parker
          **************************************************************************/
         const NewTask = () => {
             const { view, setView } = React.useContext(ViewContext);
+            const { popup, setPopup } = React.useContext(PopupContext);
 
             // React state for the form
             const [instructions, setInstructions] = React.useState("");
@@ -435,7 +486,26 @@ AUTHOR:     Mark S. Parker
 
             // Hande click of save new task button
             function handleSaveTaskButton() {
-                // TODO:
+                // Get the current tasks array
+                let tasks = restoreTasks();
+
+                // Get an ID number for the next task
+                let highestID = tasks.reduce((largest, element) => Math.max(largest, element.id), 0);
+
+                // Create a new task array element
+                let newTask = {
+                    id: highestID + 1,
+                    instructions: instructions,
+                    selectedDays: selectedDays,
+                    timeOfDay: timeOfDay
+                };
+
+                // Store the new task
+                tasks = [...tasks, newTask];
+                storeTasks(tasks);
+
+                // Report and return to the carer page
+                setPopup("New task saved!")
                 setView("carer");
             }
 
@@ -482,7 +552,7 @@ AUTHOR:     Mark S. Parker
 
                             <TimeOfDaySelector
                                 value={timeOfDay}
-                                onChange={(value) => setTimeOfDay(value)}
+                                onChange={(e) => setTimeOfDay(e.target.value)}
                                 className="m-2"
                             />
 
@@ -616,6 +686,33 @@ AUTHOR:     Mark S. Parker
                 default:
                     return "NIGHT";
             }
+        }
+
+        /**
+         * Obtain the tasks array from local storage. Return an
+         * empty array if none.
+         *
+         **/
+        function restoreTasks() {
+            // Get the tasks array, as string
+            let tasksAsString = localStorage.getItem("dispensor.tasks");
+
+            // If none, create an empty array string
+            if (tasksAsString === undefined || tasksAsString === null)
+                tasksAsString = "[]";
+
+            // Convert the tasks string to an array object and return it
+            let tasksAsArray = JSON.parse(tasksAsString);
+            return tasksAsArray;
+        }
+
+        /**
+         * Store tasks array in local storage.
+         *
+         **/
+        function storeTasks(tasksAsArray) {
+            let tasksAsString = JSON.stringify(tasksAsArray);
+            localStorage.setItem("dispensor.tasks", tasksAsString);
         }
 
         // ****************************** RENDER THE APP ****************************
