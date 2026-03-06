@@ -245,19 +245,12 @@ AUTHOR:     Mark S. Parker
             const { view, setView } = React.useContext(ViewContext);
             const tasks = restoreTasks();
 
-            console.log("List of tasks: ", tasks);
-
             return (
                 <div className="text-center pt-2">
                     <h2>List of Tasks</h2>
-
+                    
                     {tasks.map((t) => (
-                        <div key={t.id}>
-                        <p>Id:           {t.id}</p>
-                        <p>Instructions: {t.instructions}</p>
-                        <p>On days:      {t.selectedDays}</p>
-                        <p>At time:      {t.timeOfDay}</p>
-                        </div>
+                        <Task key={t.id} id={t.id} instructions={t.instructions} selectedDays={t.selectedDays} timeOfDay={t.timeOfDay} />
                         ))}
 
                     <PrimaryButton onClick={() => onToggleTheme()}>
@@ -473,6 +466,41 @@ AUTHOR:     Mark S. Parker
                 </select>
             )
         };
+
+        /**************************************************************************
+         * COMPONENT: Task                                                        *
+         *                                                                        *
+         * Display a task, with options to edit and delete.                       *
+         *                                                                        *
+         **************************************************************************/
+        const Task = ({id, instructions, selectedDays, timeOfDay}) => {
+            return (
+                <div className="container my-5">
+                    <div className="row">
+                        <label htmlFor="instructions">Instructions:</label>
+                    </div>
+
+                    <div className="row">
+                        <textarea id="instructions" rows="5" cols="80" readOnly value={instructions}></textarea>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-6">
+                            <h3 className="my-4">
+                                Task is performed on following days: {selectedDays}
+                            </h3>
+              
+                        </div>
+
+                        <div className="col-6">
+                            <h3 className="my-4">
+                                Performed at: {timeOfDay}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         /**************************************************************************
          * COMPONENT: NewTask                                                     *
