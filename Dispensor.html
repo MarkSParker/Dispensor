@@ -248,10 +248,6 @@ AUTHOR:     Mark S. Parker
             return (
                 <div className="text-center pt-2">
                     <h2>List of Tasks</h2>
-                    
-                    {tasks.map((t) => (
-                        <Task key={t.id} id={t.id} instructions={t.instructions} selectedDays={t.selectedDays} timeOfDay={t.timeOfDay} />
-                        ))}
 
                     <PrimaryButton onClick={() => onToggleTheme()}>
                         Toggle Theme
@@ -260,6 +256,11 @@ AUTHOR:     Mark S. Parker
                     <PrimaryButton onClick={() => setView("newtask")}>
                         Add Task
                     </PrimaryButton>
+
+                    {tasks.map((t) => (
+                        <Task key={t.id} id={t.id} instructions={t.instructions} selectedDays={t.selectedDays} timeOfDay={t.timeOfDay} />
+                        ))}
+
                 </div>
             );
         }
@@ -489,7 +490,7 @@ AUTHOR:     Mark S. Parker
                             <h3 className="my-4">
                                 Task is performed on following days: {selectedDays}
                             </h3>
-              
+
                         </div>
 
                         <div className="col-6">
