@@ -413,19 +413,20 @@ AUTHOR:     Mark S. Parker
 
             return (
                 <div>
-                    {DaysOfWeek.map(day => (
-                        <div key={day}>
-                            <input
-                                id={day}
-                                type="checkbox"
-                                checked={value.includes(day)}
-                                onChange={() => toggleDay(day)}
-                            />
-                            <label htmlFor={day} className="ms-3 mb-1">
-                                {day}
-                            </label>
-                        </div>
-                    ))}
+                {DaysOfWeek.map(day => (
+                    <div key={day} className="d-flex align-items-center mb-1">
+                    <input
+                        id={day}
+                        type="checkbox"
+                        className="form-check-input me-2"
+                        checked={value.includes(day)}
+                        onChange={() => toggleDay(day)}
+                    />
+                    <label htmlFor={day} className="form-check-label">
+                        {day}
+                    </label>
+                    </div>
+                ))}
                 </div>
             );
         };
@@ -439,7 +440,7 @@ AUTHOR:     Mark S. Parker
          **************************************************************************/
         const TimeOfDaySelector = ({ id, onChange }) => {
 
-            // TODO: Only offer time slots where there isn't already a task
+            // TODO: Only offer time slots where there isn't already a task on that day
 
             var options = [{ value: NotSet, label: NotSet }]
             for (let hour = 0; hour <= 23; hour++) {
@@ -485,18 +486,33 @@ AUTHOR:     Mark S. Parker
                         <textarea id="instructions" rows="5" cols="80" readOnly value={instructions}></textarea>
                     </div>
 
-                    <div className="row justify-content-center">
-                        <div className="col-6">
-                            <h3 className="my-4">
-                                Task is performed on following days: {selectedDays}
-                            </h3>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-6">
+                                <h3 className="my-4">
+                                    <DaysOfWeekSelector
+                                        value={selectedDays}
+                                        className="m-2"
+                                    />
+                                </h3>
 
-                        </div>
+                            </div>
 
-                        <div className="col-6">
-                            <h3 className="my-4">
-                                Performed at: {timeOfDay}
-                            </h3>
+                            <div className="col-6">
+                                <h3 className="my-4">
+                                    To be performed at: {timeOfDay}<br />on selected days.
+                                </h3>
+                                    <div className="row">
+                                        <PrimaryButton onClick={() => setView("edittask")}>
+                                            Edit Task
+                                        </PrimaryButton>
+                                    </div>
+                                    <div className="row">
+                                        <PrimaryButton onClick={() => setView("deletetask")}>
+                                            Delete Task
+                                        </PrimaryButton>
+                                    </div>
+                            </div>
                         </div>
                     </div>
                 </div>
