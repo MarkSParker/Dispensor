@@ -502,16 +502,18 @@ AUTHOR:     Mark S. Parker
                                 <h3 className="my-4">
                                     To be performed at: {timeOfDay}<br />on selected days.
                                 </h3>
-                                    <div className="row">
+                            <div className="container">
+                                    <div className="row col-4 ms-4">
                                         <PrimaryButton onClick={() => setView("edittask")}>
                                             Edit Task
                                         </PrimaryButton>
                                     </div>
-                                    <div className="row">
+                                    <div className="row col-4 ms-4">
                                         <PrimaryButton onClick={() => setView("deletetask")}>
                                             Delete Task
                                         </PrimaryButton>
                                     </div>
+                                </div>
                             </div>
                         </div>
                     </div>
